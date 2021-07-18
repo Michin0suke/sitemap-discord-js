@@ -55,6 +55,10 @@ const requireInit = async (channel: TextChannel | DMChannel | NewsChannel) => {
 }
 
 const updateArticle = async () => {
+  if (!channelRepository || !articleRepository || !sitemapRepository) {
+    return
+  }
+
   const channelId = (await channelRepository.findOne())?.channelId
   if (channelId) {
     const channel = client.channels.cache.get(channelId)
@@ -94,7 +98,9 @@ const updateArticle = async () => {
 client.on('ready', () => {
   console.log('I am ready!')
 
-  updateArticle()
+  setTimeout(() => {
+    updateArticle()
+  }, 10000)
 
   setInterval(async () => {
     updateArticle()
