@@ -47,11 +47,12 @@ const removeSitemap = async (sitemap: Sitemap): Promise<Sitemap | undefined> => 
   return removedSitemap
 }
 
-const requireInit = async (channel: TextChannel | DMChannel | NewsChannel) => {
+const isRegisteredChannel = async (channel: TextChannel | DMChannel | NewsChannel): Promise<boolean> => {
   if (!(await channelRepository.findOne())) {
     channel.send('最初に`init`コマンドを実行してください。')
-    throw new Error('チャンネルが登録されていません。')
+    return false
   }
+  return true
 }
 
 const updateArticle = async () => {
@@ -112,7 +113,7 @@ client.on('message', async message => {
   if (targetUserId === client.user.id) {
     // list
     if (message.content.match('list') || message.content.match('ls')) {
-      await requireInit(message.channel)
+      if (!await isRegisteredChannel(message.channel)) return
 
       const sitemaps = await sitemapRepository.find()
       if (sitemaps.length === 0) {
@@ -129,7 +130,7 @@ client.on('message', async message => {
 
     // save
     if (message.content.match('save')) {
-      await requireInit(message.channel)
+      if (!await isRegisteredChannel(message.channel)) return
 
       const sitemapUrl = message.content.match(/(http[^ ]+)/)?.[0]
       if (!sitemapUrl) {
@@ -150,7 +151,7 @@ client.on('message', async message => {
 
     // rm
     if (message.content.match('rm') || message.content.match('remove')) {
-      await requireInit(message.channel)
+      if (!await isRegisteredChannel(message.channel)) return
 
       const sitemapId = message.content.match(/\d+$/)?.[0]
       if (!sitemapId) {
@@ -176,7 +177,7 @@ client.on('message', async message => {
 
     // free
     if (message.content.match('free')) {
-      await requireInit(message.channel)
+      if (!await isRegisteredChannel(message.channel)) return
 
       const sitemaps = await sitemapRepository.find()
       sitemaps.forEach(sitemap => removeSitemap(sitemap))
