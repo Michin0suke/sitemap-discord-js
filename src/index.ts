@@ -137,6 +137,10 @@ client.on('message', async message => {
         message.channel.send('URLを指定してください。')
         return
       }
+      if (await sitemapRepository.findOne({ url: sitemapUrl })) {
+        message.channel.send('指定されたサイトマップはすでに登録済みです。')
+        return
+      }
       if (!(await isValidSitemap(sitemapUrl))) {
         message.channel.send('有効なサイトマップURLを指定してください。')
         return
